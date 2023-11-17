@@ -3,6 +3,8 @@
 # github https://github.com/runhey
 import time
 
+import logging
+import random
 from tasks.Component.SwitchSoul.switch_soul import SwitchSoul
 from tasks.Exploration.assets import ExplorationAssets
 from tasks.Exploration.config import ChooseRarity, AutoRotate, AttackNumber
@@ -11,7 +13,7 @@ from tasks.GameUi.game_ui import GameUi
 from tasks.GameUi.page import page_exploration, page_shikigami_records, page_main
 
 from module.logger import logger
-from module.exception import RequestHumanTakeover
+from module.exception import RequestHumanTakeover, TaskEnd
 from module.atom.image_grid import ImageGrid
 
 
@@ -57,26 +59,52 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, ExplorationAssets):
         # ************************* 跳转至对应指定章节并进入 *******************
         # 默认全部解锁， 当前处于第二十八章
         # 查找指定的章节：
-        if not self.open_expect_level():
-            logger.critical(f'Not find {explorationConfig.exploration_config.exploration_level} or'
-                            f' Enter {explorationConfig.exploration_config.exploration_level} failed!')
-            raise RequestHumanTakeover
+        # if not self.open_expect_level():
+        #     logger.critical(f'Not find {explorationConfig.exploration_config.exploration_level} or'
+        #                     f' Enter {explorationConfig.exploration_config.exploration_level} failed!')
+        #     raise RequestHumanTakeover
 
-        # 只探索7次
-        if explorationConfig.exploration_config.attack_number == AttackNumber.SEVEN:
-            count = 0
-            while count < 7:
-                self.screenshot()
-                time.sleep(0.5)
-                if self.appear_then_click(self.I_E_EXPLORATION_CLICK):
-                    count += 1
-                    # 进入战斗环节
-                    self.battle_process()
-                if self.appear_then_click(self.I_EXPLORATION_TITLE):
-                    self.open_expect_level()
+        # # # 只探索7次
+        # if explorationConfig.exploration_config.attack_number == AttackNumber.SEVEN:
+        #     count = 0
+        #     while count < 7:
+        #         self.screenshot()
+        #         time.sleep(0.5)
+        #         if self.appear_then_click(self.I_E_EXPLORATION_CLICK):
+        #             count += 1
+        #             # 进入战斗环节
+        #             self.battle_process()
+        #         if self.appear_then_click(self.I_EXPLORATION_TITLE):
+        #             self.open_expect_level()
+
+        count = 0
+        self.exploration_num = random.randint(*map(int, explorationConfig.exploration_config.attack_number.split(","))) \
+            if "," in explorationConfig.exploration_config.attack_number else int(explorationConfig.exploration_config.attack_number)
+        while count < self.exploration_num:
+            self.screenshot()
+            time.sleep(0.5)
+            if self.appear_then_click(self.I_E_EXPLORATION_CLICK):
+                count += 1
+                logger.info(f"当前轮数：{count}")
+                # 进入战斗环节
+                self.battle_process(count)
+            if self.appear_then_click(self.I_EXPLORATION_TITLE):
+                self.open_expect_level()
+        self.ui_get_current_page()
+        self.ui_goto(page_main)
+        self.set_next_run(task='Exploration', success=True, finish=True)
+        raise TaskEnd
+
 
     # 查找指定的章节：
     def open_expect_level(self):
+
+        # 在打开章节的界面
+        self.screenshot()
+        if self.appear(self.I_E_EXPLORATION_CLICK):
+            logger.info(f"已在章节的界面!!!")
+            return True
+
         swipeCount = 0
         while 1:
             # 探索的 config
@@ -179,34 +207,71 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, ExplorationAssets):
         self.appear_then_click(self.I_E_SURE_BUTTON)
 
     # 探索战斗流程
-    def do_battle(self):
+    # def do_battle(self):
+    #     while 1:
+    #         self.screenshot()
+    #         # 战后奖励
+    #         self.appear_then_click(self.I_BATTLE_REWARD)
+    #         # boss 战
+    #         if self.appear_then_click(self.I_BOSS_BATTLE_BUTTON):
+    #             time.sleep(0.5)
+    #             self.screenshot()
+    #             if self.appear(self.I_BOSS_BATTLE_BUTTON):
+    #                 continue
+    #             self.run_general_battle(self.config.exploration.general_battle_config)
+    #         # 小怪 战
+    #         if self.appear_then_click(self.I_NORMAL_BATTLE_BUTTON):
+    #             time.sleep(0.5)
+    #             self.screenshot()
+    #             if self.appear(self.I_NORMAL_BATTLE_BUTTON):
+    #                 continue
+    #             self.run_general_battle(self.config.exploration.general_battle_config)
+    #             self.screenshot()
+    #         elif self.appear(self.I_E_AUTO_ROTATE_ON) and not self.appear(self.I_BATTLE_REWARD):
+    #             self.swipe(self.S_SWIPE_BACKGROUND_RIGHT)
+    #         # 结束流程
+    #         if self.appear(self.I_E_EXPLORATION_CLICK) or self.appear(self.I_EXPLORATION_TITLE):
+    #             break
+    # 探索战斗流程
+    def do_battle(self, count):
         while 1:
             self.screenshot()
-            # 战后奖励
-            self.appear_then_click(self.I_BATTLE_REWARD)
             # boss 战
             if self.appear_then_click(self.I_BOSS_BATTLE_BUTTON):
-                time.sleep(0.5)
-                self.screenshot()
-                if self.appear(self.I_BOSS_BATTLE_BUTTON):
-                    continue
                 self.run_general_battle(self.config.exploration.general_battle_config)
+                self.screenshot()
+                if self.wait_until_appear(self.I_E_SETTINGS_BUTTON):
+                    while 1:
+                        self.screenshot()
+                        if self.appear_then_click(self.I_BATTLE_REWARD):
+                            self.screenshot()
+                            self.click(self.C_CLICK_ROTATE_1)
+                            time.sleep(0.5)
+                        if self.appear(self.I_EXPLORATION_TITLE):
+                            break
+                        if self.appear(self.I_E_EXPLORATION_CLICK):
+                            break
+                if self.appear(self.I_E_EXPLORATION_CLICK) or self.appear(self.I_EXPLORATION_TITLE):
+                    break
             # 小怪 战
             if self.appear_then_click(self.I_NORMAL_BATTLE_BUTTON):
-                time.sleep(0.5)
                 self.screenshot()
-                if self.appear(self.I_NORMAL_BATTLE_BUTTON):
-                    continue
-                self.run_general_battle(self.config.exploration.general_battle_config)
+                if self.appear_then_click(self.I_NORMAL_BATTLE_BUTTON):
+                    self.run_general_battle(self.config.exploration.general_battle_config)
+                else:
+                    self.run_general_battle(self.config.exploration.general_battle_config)
                 self.screenshot()
-            elif self.appear(self.I_E_AUTO_ROTATE_ON) and not self.appear(self.I_BATTLE_REWARD):
+                while self.appear(self.I_BATTLE_REWARD):
+                    self.screenshot()
+                    self.appear_then_click(self.I_BATTLE_REWARD)
+                    self.screenshot()
+            else:
                 self.swipe(self.S_SWIPE_BACKGROUND_RIGHT)
-            # 结束流程
-            if self.appear(self.I_E_EXPLORATION_CLICK) or self.appear(self.I_EXPLORATION_TITLE):
-                break
+            logger.info(f"当前循环数：{count} / 总共循环数：{self.exploration_num}")
+
 
     # 战斗流程
-    def battle_process(self):
+    def battle_process(self, count):
         # 进入指定章节
         self.screenshot()
         if self.appear_then_click(self.I_E_EXPLORATION_CLICK):
@@ -215,22 +280,24 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, ExplorationAssets):
         # ************************* 进入设置并操作 *******************
         # 候补以及自动轮换打开：
         # 自动轮换功能打开
-        while 1:
-            self.screenshot()
-            # 自动轮换开着 则跳过
-            if self.appear(self.I_E_AUTO_ROTATE_ON):
-                break
-            # 自动轮换关着 则打开
-            if self.appear_then_click(self.I_E_AUTO_ROTATE_OFF):
-                if self.appear(self.I_E_AUTO_ROTATE_ON):
-                    break
+        # while 1:
+        #     self.screenshot()
+        #     # 自动轮换开着 则跳过
+        #     if self.appear(self.I_E_AUTO_ROTATE_ON):
+        #         break
+        #     # 自动轮换关着 则打开
+        #     if self.appear_then_click(self.I_E_AUTO_ROTATE_OFF):
+        #         if self.appear(self.I_E_AUTO_ROTATE_ON):
+        #             break
+        #         break
+
 
         # 自动添加候补式神
         if self.config.exploration.exploration_config.auto_rotate == AutoRotate.yes:
             self.enter_settings_and_do_operations()
 
         # 进入战斗环节
-        self.do_battle()
+        self.do_battle(count)
 
 
 if __name__ == "__main__":

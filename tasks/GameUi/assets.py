@@ -85,7 +85,6 @@ class GameUiAssets:
 	# description 
 	I_RYOUTOPPA_GOTO_REALMRAID = RuleImage(roi_front=(1201,234,62,105), roi_back=(1201,234,62,105), threshold=0.8, method="Template matching", file="./tasks/GameUi/page/page_ryoutoppa_goto_realmraid.png")
 
-
 	# Image Rule Assets
 	# description 
 	I_MAIN_GOTO_TOWN = RuleImage(roi_front=(706,249,61,57), roi_back=(200,120,951,298), threshold=0.8, method="Template matching", file="./tasks/GameUi/page/page_main_goto_town.png")

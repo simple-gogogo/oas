@@ -129,6 +129,9 @@ class GameUi(BaseTask, GameUiAssets):
                 if self.appear_then_click(close, interval=1):
                     logger.info('Trying to switch to supported page')
                     timeout = Timer(10, count=20).start()
+                if self.appear_then_click(self.I_UI_CONFIRM_REN, interval=1):
+                    pass
+
             # Unknown page but able to handle
             # logger.info("Unknown ui page")
             # if self.appear_then_click(GOTO_MAIN, offset=(30, 30), interval=2) or self.ui_additional():

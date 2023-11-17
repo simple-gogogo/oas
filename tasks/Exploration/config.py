@@ -64,10 +64,11 @@ class ExplorationConfig(BaseModel):
     buff_gold_50_click: bool = Field(default=False)
     buff_gold_100_click: bool = Field(default=False)
 
-    attack_number: AttackNumber = Field(title='探索次数', default=AttackNumber.SEVEN,
-                                        description='默认探索7次')
+    # attack_number: AttackNumber = Field(title='探索次数', default=AttackNumber.SEVEN,
+    #                                     description='默认探索7次')
+    attack_number: str = Field(default=AttackNumber.SEVEN, description='默认探索7次 英文逗号,分割代表随机')
 
-    current_exploration_times: str = Field(default='0', description='探索次数')
+    # current_exploration_times: str = Field(default='0', description='探索次数')
 
     exploration_level: ExplorationLevel = Field(title='探索等级', default=ExplorationLevel.EXPLORATION_28,
                                                 description='探索等级 默认二十八')

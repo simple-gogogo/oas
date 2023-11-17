@@ -47,7 +47,7 @@ class LogStream(TextIOBase):
             msg = msg.decode("utf-8")
         self._func(msg)
         return len(msg)
-    
+
 class RichStreamHandler(RichHandler):
     pass
 
@@ -190,11 +190,11 @@ logger_debug = False
 logger = logging.getLogger('oas')
 logger.setLevel(logging.DEBUG if logger_debug else logging.INFO)
 file_formatter = logging.Formatter(
-    fmt='%(asctime)s.%(msecs)03d | %(levelname)8s | %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
+    fmt='%(asctime)s.%(msecs)03d | %(levelname)8s | %(module)s.%(funcName)s-%(lineno)d|%(message)s', datefmt='%Y-%m-%d %H:%M:%S')
 console_formatter = logging.Formatter(
-    fmt='%(asctime)s.%(msecs)03d │ %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
+    fmt='%(asctime)s.%(msecs)03d |%(module)s.%(funcName)s-%(lineno)d|%(message)s', datefmt='%Y-%m-%d %H:%M:%S')
 web_formatter = logging.Formatter(
-    fmt='%(asctime)s.%(msecs)03d │ %(message)s', datefmt='%H:%M:%S')
+    fmt='%(asctime)s.%(msecs)03d │ %(module)s.%(funcName)s-%(lineno)d|%(message)s', datefmt='%H:%M:%S')
 
 # Add console logger
 # console = logging.StreamHandler(stream=sys.stdout)

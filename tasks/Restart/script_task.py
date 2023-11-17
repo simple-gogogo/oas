@@ -1,7 +1,7 @@
 # This Python file uses the following encoding: utf-8
 # @author runhey
 # github https://github.com/runhey
-
+import subprocess
 
 from tasks.Restart.config_scheduler import Scheduler
 from tasks.Restart.login import LoginHandler
@@ -44,16 +44,24 @@ class ScriptTask(LoginHandler):
         # self.config.task_delay(server_update=True)
         self.set_next_run(task='Restart', success=True, finish=True, server=True)
 
+    def start_program(self, path):
+        SW_HIDE = 0
+        info = subprocess.STARTUPINFO()
+        info.dwFlags = subprocess.STARTF_USESHOWWINDOW
+        info.wShowWindow = SW_HIDE
+        mumu = subprocess.Popen(path, startupinfo=info)
+        return mumu
 
 
 if __name__ == '__main__':
     from module.config.config import Config
     from module.device.device import Device
 
-    config = Config('oas2')
+    config = Config('oas1')
     device = Device(config)
     task = ScriptTask(config, device)
-    task.app_start()
+    # task.start_program(r'D:\mumu\MuMuPlayer-12.0\shell\MuMuPlayer.exe')
+    task.app_restart()
 
 
 

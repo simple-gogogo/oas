@@ -456,13 +456,14 @@ class Script:
             # deep_set(self.failure_record, keys=task, value=failed)
             self.failure_record[task] = failed
             if failed >= 3:
-                logger.critical(f"Task `{task}` failed 3 or more times.")
-                logger.critical("Possible reason #1: You haven't used it correctly. "
-                                "Please read the help text of the options.")
-                logger.critical("Possible reason #2: There is a problem with this task. "
-                                "Please contact developers or try to fix it yourself.")
+                # logger.critical(f"Task `{task}` failed 3 or more times.")
+                # logger.critical("Possible reason #1: You haven't used it correctly. "
+                #                 "Please read the help text of the options.")
+                # logger.critical("Possible reason #2: There is a problem with this task. "
+                #                 "Please contact developers or try to fix it yourself.")
                 logger.critical('Request human takeover')
-                exit(1)
+                logger.info(self.failure_record)
+                # exit(1)
 
             if success:
                 del_cached_property(self, 'config')
