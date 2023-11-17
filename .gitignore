@@ -14,13 +14,11 @@ dev_tools/debug_tools
 .idea
 /screenshots
 /campaign/test/
-/toolkit
 *.lock
 config/reloadflag
 config/reloadalas
 test.py
 test/
-
 # OnmyojiAutoScript
 *.user
 !module/gui/FluentUI/fluentuiplugin.dll
@@ -264,5 +262,4 @@ adb_port.txt
 adb_port.ini
 !popup.exe
 *.zip
-console.bat
 .vscode/*
