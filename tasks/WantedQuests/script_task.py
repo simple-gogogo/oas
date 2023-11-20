@@ -49,7 +49,9 @@ class ScriptTask(SecretScriptTask, GeneralInvite, WantedQuestsAssets):
                     logger.warning('Current number of wanted quests is greater than total number')
                     cu = cu % 10
                 if cu < total and re != 0:
-                    self.execute_mission(self.O_WQ_TEXT_1, total, number_challenge)
+                    result = self.execute_mission(self.O_WQ_TEXT_1, total, number_challenge)
+                    if result is False:
+                        self.execute_mission(self.O_WQ_TEXT_1, total, number_challenge, True)
                 continue
             if self.ocr_appear(self.O_WQ_TEXT_2, interval=0.7) or self.ocr_appear(O_TEXT_COPY_1, interval=0.7):
                 cu, re, total = self.O_WQ_NUM_2.ocr(self.device.image)
@@ -60,7 +62,9 @@ class ScriptTask(SecretScriptTask, GeneralInvite, WantedQuestsAssets):
                     logger.warning('Current number of wanted quests is greater than total number')
                     cu = cu % 10
                 if cu < total and re != 0:
-                    self.execute_mission(self.O_WQ_TEXT_2, total, number_challenge)
+                    result = self.execute_mission(self.O_WQ_TEXT_2, total, number_challenge)
+                    if result is False:
+                        self.execute_mission(self.O_WQ_TEXT_2, total, number_challenge, True)
                 continue
 
             if self.appear(self.I_WQ_CHECK_TASK):
@@ -120,12 +124,13 @@ class ScriptTask(SecretScriptTask, GeneralInvite, WantedQuestsAssets):
         self.ui_click_until_disappear(self.I_UI_BACK_RED)
         self.ui_goto(page_exploration)
 
-    def execute_mission(self, ocr, num_want: int, num_challenge: int):
+    def execute_mission(self, ocr, num_want: int, num_challenge: int, cancel_task=False):
         """
 
         :param ocr: 要点击的 文字
         :param num_want: 一共要打败的怪物数量
         :param num_challenge: 现在有的挑战卷数量
+        :param cancel_task: 执行失败则取消追踪
         :return:
         """
         logger.hr('Start wanted quests')
@@ -135,7 +140,7 @@ class ScriptTask(SecretScriptTask, GeneralInvite, WantedQuestsAssets):
                 break
             if self.click(ocr, interval=1):
                 continue
-        if not self.appear(self.I_GOTO_1):
+        if not self.appear(self.I_GOTO_1) or cancel_task:
             # 如果没有出现 '前往'按钮， 那就是这个可能是神秘任务但是没有解锁
             logger.warning('This is a secret mission but not unlock')
             self.ui_click(self.I_TRACE_TRUE, self.I_TRACE_FALSE)
@@ -155,6 +160,7 @@ class ScriptTask(SecretScriptTask, GeneralInvite, WantedQuestsAssets):
             info = wq_info.ocr(self.device.image)
             try:
                 # 匹配： 第九章(数量:5)
+                # 匹配： 狐生百魅·拾数量：5）
                 one_number = int(re.findall(r'(\d+)', info)[-1])
                 # one_number = int(re.findall(r'\*\(\数量:\s*(\d+)\)', info)[0])
             except IndexError:
@@ -180,25 +186,27 @@ class ScriptTask(SecretScriptTask, GeneralInvite, WantedQuestsAssets):
             battle, num = check_battle(challenge, self.O_WQ_TYPE_4, self.O_WQ_INFO_4)
             goto = self.I_GOTO_4
         if battle == 'CHALLENGE':
-            self.challenge(goto, num)
+            return self.challenge(goto, num)
         elif battle == 'SECRET':
-            self.secret(goto, num)
+            return self.secret(goto, num)
         else:
             # 没有找到可以挑战的关卡 那就关闭
             logger.warning('No wanted quests can be challenged')
-            return False
+            return
 
 
     def challenge(self, goto, num):
         self.ui_click(goto, self.I_WQC_FIRE)
         self.ui_click(self.I_WQC_LOCK, self.I_WQC_UNLOCK)
         self.ui_click_until_disappear(self.I_WQC_FIRE)
-        self.run_general_battle()
+        success = self.run_general_battle()
         self.wait_until_appear(self.I_WQC_FIRE, wait_time=4)
         self.ui_click_until_disappear(self.I_UI_BACK_RED)
         # 我忘记了打完后是否需要关闭 挑战界面
+        return success
 
     def secret(self, goto, num=1):
+        success = False
         self.ui_click(goto, self.I_WQSE_FIRE)
         for i in range(num):
             self.wait_until_appear(self.I_WQSE_FIRE)
@@ -229,6 +237,7 @@ class ScriptTask(SecretScriptTask, GeneralInvite, WantedQuestsAssets):
             if self.appear_then_click(self.I_UI_BACK_BLUE, interval=1.5):
                 continue
         logger.info('Secret mission finished')
+        return success
 
     def invite_five(self):
         """
