@@ -97,6 +97,7 @@ class ScriptTask(GeneralBattle, GameUi, SwitchSoul, AreaBossAssets):
         # 点击挑战
         logger.info("Script fire ")
         while 1:
+            time.sleep(1)
             self.screenshot()
             if self.appear_then_click(self.I_FIRE, interval=1):
                 continue

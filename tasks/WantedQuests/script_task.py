@@ -120,7 +120,7 @@ class ScriptTask(SecretScriptTask, GeneralInvite, WantedQuestsAssets):
                 continue
         # 已追踪所有任务
         logger.info('All wanted quests are traced')
-        self.invite_five()
+        # self.invite_five()
         self.ui_click_until_disappear(self.I_UI_BACK_RED)
         self.ui_goto(page_exploration)
 

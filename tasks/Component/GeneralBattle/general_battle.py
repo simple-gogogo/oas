@@ -243,20 +243,27 @@ class GeneralBattle(GeneralBuff, GeneralBattleAssets):
                 case GreenMarkType.GREEN_LEFT1:
                     x, y = self.C_GREEN_LEFT_1.coord()
                     logger.info("Green left 1")
+                    # 定义ROI的坐标信息
+                    roi_front = self.C_GREEN_LEFT_1.roi_front
                 case GreenMarkType.GREEN_LEFT2:
                     x, y = self.C_GREEN_LEFT_2.coord()
                     logger.info("Green left 2")
+                    roi_front = self.C_GREEN_LEFT_2.roi_front
                 case GreenMarkType.GREEN_LEFT3:
                     x, y = self.C_GREEN_LEFT_3.coord()
                     logger.info("Green left 3")
+                    roi_front = self.C_GREEN_LEFT_3.roi_front
                 case GreenMarkType.GREEN_LEFT4:
                     x, y = self.C_GREEN_LEFT_4.coord()
+                    roi_front = self.C_GREEN_LEFT_4.roi_front
                     logger.info("Green left 4")
                 case GreenMarkType.GREEN_LEFT5:
                     x, y = self.C_GREEN_LEFT_5.coord()
+                    roi_front = self.C_GREEN_LEFT_5.roi_front
                     logger.info("Green left 5")
                 case GreenMarkType.GREEN_MAIN:
                     x, y = self.C_GREEN_MAIN.coord()
+                    roi_front = self.C_GREEN_MAIN.roi_front
                     logger.info("Green main")
 
             # 等待那个准备的消失
@@ -268,6 +275,9 @@ class GeneralBattle(GeneralBuff, GeneralBattleAssets):
             # 判断有无坐标的偏移
             self.appear_then_click(self.I_LOCAL)
             time.sleep(0.3)
+
+            self.save_now(roi_front)
+
             # 点击绿标
             self.device.click(x, y)
 

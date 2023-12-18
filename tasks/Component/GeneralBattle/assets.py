@@ -49,7 +49,7 @@ class GeneralBattleAssets:
 	# 预设组7 
 	C_PRESET_GROUP_7 = RuleClick(roi_front=(29,615,137,63), roi_back=(29,615,137,63), name="preset_group_7")
 	# 从左开始第一个绿标 
-	C_GREEN_LEFT_1 = RuleClick(roi_front=(128,433,90,150), roi_back=(128,433,90,150), name="green_left_1")
+	C_GREEN_LEFT_1 = RuleClick(roi_front=(256,433,90,150), roi_back=(128,433,90,150), name="green_left_1")
 	# 从左开始第二个绿标 
 	C_GREEN_LEFT_2 = RuleClick(roi_front=(371,385,81,145), roi_back=(371,385,81,145), name="green_left_2")
 	# 从左开始第三个绿标 

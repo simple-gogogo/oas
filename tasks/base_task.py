@@ -1,6 +1,7 @@
 # This Python file uses the following encoding: utf-8
 # @author runhey
 # github https://github.com/runhey
+import cv2
 import numpy as np
 
 from time import sleep
@@ -520,4 +521,15 @@ class BaseTask(GlobalGameAssets):
             elif self.appear_then_click(click, interval=1):
                 continue
 
+    def save_now(self, roi_front, img_file="aaa.jpg"):
+        now_img = self.device.screenshot()
+        # 提取ROI的坐标信息
+        x, y, w, h = roi_front
+
+        # 在图像上绘制矩形框
+        color = (0, 255, 0)  # 框的颜色，这里用绿色
+        thickness = 2  # 框的厚度
+        cv2.rectangle(now_img, (x, y), (x + w, y + h), color, thickness)
+        # 保存带有框的图像
+        cv2.imwrite(f'test\{img_file}', now_img)
 
