@@ -105,8 +105,8 @@ class ScriptTask(GameUi, GeneralBattle, DuelAssets):
                 logger.info('You are already a celeb')
                 return None
             current_score = self.O_D_SCORE.ocr(self.device.image)
-            if current_score < 1200 or current_score > 3000:
-                continue
+            # if current_score < 1200 or current_score > 3000:
+            #     continue
             return current_score if current_score <= target else None
 
     def duel_one(self, current_score: int, enable: bool=False,
@@ -129,7 +129,9 @@ class ScriptTask(GameUi, GeneralBattle, DuelAssets):
         # 点击斗技 开始匹配对手
         logger.hr('Duel start match')
         while 1:
+            sleep(5)
             self.screenshot()
+            # self.save_now(self.I_D_AUTO_ENTRY.roi_front, img_file="bbb.jpg")
             if self.appear(self.I_D_AUTO_ENTRY):
                 # 出现自动上阵
                 self.ui_click_until_disappear(self.I_D_AUTO_ENTRY)
@@ -137,17 +139,27 @@ class ScriptTask(GameUi, GeneralBattle, DuelAssets):
                 self.device.stuck_record_clear()
                 self.device.stuck_record_add('BATTLE_STATUS_S')
                 self.wait_until_disappear(self.I_D_WORD_BATTLE)
-                break
-            if current_score <= 1800 and self.appear(self.I_D_PREPARE):
-                # 低段位有的准备
-                self.ui_click(self.I_D_PREPARE, self.I_D_PREPARE_DONE)
-                self.wait_until_disappear(self.I_D_PREPARE_DONE)
-                logger.info('Duel prepare')
-                break
+            break
+            # if current_score <= 1800 and self.appear(self.I_D_PREPARE):
+            #     # 低段位有的准备
+            #     # self.ui_click(self.I_D_PREPARE, self.I_D_PREPARE_DONE)
+            #     sleep(2)
+            #     self.screenshot()
+            #     self.save_now(self.I_D_PREPARE.roi_front, img_file="bbb.jpg")
+            #     self.appear_then_click(self.I_D_PREPARE)
+            #     if self.appear(self.I_D_PREPARE_DONE):
+            #         self.wait_until_disappear(self.I_D_PREPARE_DONE)
+            #     logger.info('Duel prepare')
+            #     break
         # 正式进入战斗
         logger.info('Duel start battle')
         while 1:
             self.screenshot()
+            if self.appear(self.I_D_PREPARE):
+                self.appear_then_click(self.I_D_PREPARE)
+                continue
+            if self.appear(self.I_D_PREPARE_DONE):
+                self.wait_until_disappear(self.I_D_PREPARE_DONE)
             if self.ocr_appear(self.O_D_AUTO, interval=0.4):
                 break
             if self.ocr_appear_click(self.O_D_HAND, interval=1):
